@@ -57,15 +57,24 @@ Returns:
     evals, evecs = linalg.eig(m)
     evecs = evecs.T
 
-    evals[evals < 0] *= -1
-    evecs[evals < 0] *= -1
-
     sort_order = np.argsort(evals)[::-1]
 
     ordered_evecs = evecs[sort_order,:]
 
     return ordered_evecs
 
+
+def _custom_pca(xs: npt.NDArray, N: int) -> npt.NDArray:
+    """A custom implementation of Pricipal Component Analysis"""
+
+    cov_mat = covariance_matrix(xs)
+    comps = principal_components(cov_mat)[:N]
+
+    # comps is NxM
+
+    ys = xs @ comps.T
+
+    return ys
 
 def pca(xs: npt.NDArray, N: int) -> npt.NDArray:
     """Uses Principal Component Analysis (PCA) to reduce the dimensionality of some data points
@@ -86,11 +95,4 @@ Returns:
     if N > xs.shape[1]:
         raise DimensionTooHighError()
 
-    cov_mat = covariance_matrix(xs)
-    comps = principal_components(cov_mat)[:N]
-
-    # comps is NxM
-
-    ys = xs @ comps.T
-
-    return ys
+    return _custom_pca(xs, N)

@@ -59,6 +59,18 @@ _CASES = [
             [ 3.26652151, -0.07271623, 1 ],
         ], dtype=np.float32)
     ),
+    (
+        np.array([
+            [125, 15, 50],
+            [15, 26, 17],
+            [50, 17, 25],
+        ], dtype=np.float32),
+        np.array([
+            [2.33814136, 0.423012569, 1],
+            [-0.957343082, 2.92758074, 1],
+            [-19, -25, 55],
+        ], dtype=np.float32)
+    ),
 ]
 
 
@@ -73,6 +85,4 @@ def test_dimensions(xs: npt.NDArray):
 @pytest.mark.parametrize(("xs", "ys"), _CASES)
 def test_values(xs: npt.NDArray, ys: npt.NDArray):
     out = principal_components(xs)
-    facs = ys[:,0] / out[:,0]
-    fac_out = out * (facs[:,np.newaxis])
-    assert_arrays_close(fac_out, ys)
+    assert_vectors_colinear(out, ys)
