@@ -26,12 +26,14 @@ class WordTextToken(TextToken):
 
     _VALID_REGEX = re.compile(r"\w+", flags=re.IGNORECASE)
 
-    def __init__(self, word: str):
+    def __init__(self,
+                 word: str,
+                 preserve_case: bool = False):
 
         if not WordTextToken._VALID_REGEX.fullmatch(word):
             raise ValueError(word)
 
-        self.word = word
+        self.word = word if preserve_case else word.lower()
 
 
 class EndOfSectionTextToken(TextToken):
