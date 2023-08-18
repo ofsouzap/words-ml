@@ -17,6 +17,10 @@ __SECTION_SEPARATORS: Set[str] = { ".", "\n" }
 """Characters that are accepted as separating sections of text."""
 
 
+class UnhandledTextTokenTypeException(Exception):
+    pass
+
+
 class TextToken(ABC):
     """A piece of a tokenized text"""
     pass
@@ -65,5 +69,9 @@ def tokenize(text: str) -> List[TextToken]:
 
             if (len(tokens) > 0) and (not isinstance(tokens[-1], EndOfSectionTextToken)):
                 tokens.append(EndOfSectionTextToken())
+
+    if curr:
+        tokens.append(WordTextToken(curr))
+        curr = ""
 
     return tokens
