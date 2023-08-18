@@ -107,5 +107,4 @@ def test_dimensions(xs: npt.NDArray):
 @pytest.mark.parametrize(("xs", "ys"), _CASES)
 def test_values(xs: npt.NDArray, ys: npt.NDArray):
     out = covariance_matrix(xs)
-    fac = ys[0,0] / out[0,0]
-    assert_arrays_close(fac*out, ys)
+    assert_matrices_proportional(out, ys)
