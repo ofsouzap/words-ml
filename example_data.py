@@ -9,5 +9,5 @@ def __load_file(filename: str) -> str:
         return file.read()
 
 
-def load_text(name: str) -> str:
-    return __load_file(joinpath(EXAMPLE_TEXT_PATH, name))
+def load_text(filename: str) -> str:
+    return __load_file(joinpath(EXAMPLE_TEXT_PATH, filename))
