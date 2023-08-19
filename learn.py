@@ -3,9 +3,9 @@ from collections import defaultdict
 import numpy as np
 import numpy.typing as npt
 from bij_map import BijMap
-from tokenizing import WordTextToken, EndOfSectionTextToken, UnhandledTextTokenTypeException
 from text_source import ITextSource
-from check import check, check_mat_symmetrical
+from check import check
+from progress.bar import ShadyBar
 
 
 def learn_word_rel_pos(text_source: ITextSource,
@@ -81,33 +81,38 @@ The value `matrix[i,j]` gives you the average distance from an instance of word 
 
     N = len(discovered_words)
 
-    matrix = np.empty(shape=(N,N), dtype=np.float32)
+    matrix = np.ones(shape=(N,N), dtype=np.float32) * np.inf
     word_indexes = BijMap[str, int]()
+    word_indexes_index: int = 0
 
-    _word_list: List[str] = list(discovered_words)
+    for pair in tot_dists:
 
-    for word_index_1 in range(len(_word_list)):
+        word_1, word_2 = pair
 
-        word_1 = _word_list[word_index_1]
-        word_indexes.set_to(word_1, word_index_1)
+        # Add word if they weren't there before
 
-        for word_index_2 in range(len(_word_list)):
+        if word_indexes.to_contains(word_1):
+            word_index_1 = word_indexes.get_to(word_1)
+        else:
+            word_index_1 = word_indexes_index
+            word_indexes_index += 1
+            word_indexes.set_to(word_1, word_index_1)
 
-            word_2 = _word_list[word_index_2]
+        if word_indexes.to_contains(word_2):
+            word_index_2 = word_indexes.get_to(word_2)
+        else:
+            word_index_2 = word_indexes_index
+            word_indexes_index += 1
+            word_indexes.set_to(word_2, word_index_2)
 
-            pair = (word_1, word_2)
+        # Insert the pair's value
 
-            tot = tot_dists[pair]
-            num = occurence_count[pair]
+        tot = tot_dists[pair]
+        num = occurence_count[pair]
 
-            if num != 0:
+        avg_dist = tot / num
 
-                avg_dist = tot / num
-
-                matrix[word_index_1, word_index_2] = avg_dist
-
-            else:
-                matrix[word_index_1, word_index_2] = np.inf
+        matrix[word_index_1,word_index_2] = avg_dist
 
     # Return outputs
 

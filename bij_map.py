@@ -33,3 +33,9 @@ class BijMap(Generic[A, B]):
             return self.__from[b]
         else:
             raise KeyError(b)
+
+    def to_contains(self, a: A) -> bool:
+        return a in self.__to
+
+    def from_contins(self, b: B) -> bool:
+        return b in self.__from
