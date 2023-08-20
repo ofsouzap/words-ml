@@ -6,8 +6,7 @@ from bij_map import BijMap
 from pca import pca
 from learn import learn_word_rel_pos
 from text_source import RawTextSource
-from example_data import load_text as load_example_text
-from example_data import EXAMPLE_WIKIPEDIA_TEXT_PATH
+from example_data.text.wikipedia_articles import load_text as load_example_text
 from saved_models import save_matrix, save_word_indexes, ModelFilepaths
 
 
@@ -49,11 +48,11 @@ def create_models(
 
 def main():
 
-    _texts = [load_example_text(EXAMPLE_WIKIPEDIA_TEXT_PATH/fn) for fn in [
-        # "wikipedia-frances-cleveland.txt",
-        "wikipedia-google.txt",
-        "wikipedia-github.txt",
-        "wikipedia-france.txt",
+    _texts = [load_example_text(fn) for fn in [
+        # "frances-cleveland",
+        "google",
+        "github",
+        "france",
     ]]
 
     _fulltext = ".".join(_texts)
