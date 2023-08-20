@@ -2,6 +2,7 @@ from os.path import join as joinpath
 
 
 EXAMPLE_TEXT_PATH = joinpath("example_data", "text")
+EXAMPLE_WIKIPEDIA_TEXT_PATH = joinpath(EXAMPLE_TEXT_PATH, "wikipedia-articles")
 
 
 def __load_file(filename: str) -> str:
@@ -10,4 +11,4 @@ def __load_file(filename: str) -> str:
 
 
 def load_text(filename: str) -> str:
-    return __load_file(joinpath(EXAMPLE_TEXT_PATH, filename))
+    return __load_file(filename)
