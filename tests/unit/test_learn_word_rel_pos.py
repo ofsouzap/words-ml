@@ -69,7 +69,7 @@ _CASES: List[Tuple[str, Iterable[Tuple[Tuple[str, str], Tuple[float, float]]], i
             (("i","a"), (54/6,48/6)),
         ],
         25,
-        2
+        4
     ),
     # TODO - more test cases
 ]

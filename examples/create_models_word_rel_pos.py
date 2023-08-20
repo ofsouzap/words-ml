@@ -1,24 +1,24 @@
 import numpy.typing as npt
 import numpy as np
+from pathlib import Path
 from progress.bar import ShadyBar
-from os.path import join as joinpath
 from bij_map import BijMap
 from pca import pca
 from learn import learn_word_rel_pos
 from text_source import RawTextSource
 from example_data import load_text as load_example_text
 from example_data import EXAMPLE_WIKIPEDIA_TEXT_PATH
-from saved_models import save_matrix, save_word_indexes, ModelFilenames
+from saved_models import save_matrix, save_word_indexes, ModelFilepaths
 
 
 def create_models(
     pos_mat: npt.NDArray,
     word_indexes: BijMap[str, int],
-    data_filename: str,
-    word_indexes_filename: str,
-    pca_filename: str) -> None:
+    data_filepath: Path,
+    word_indexes_filepath: Path,
+    pca_filepath: Path) -> None:
 
-    save_word_indexes(word_indexes_filename, word_indexes)
+    save_word_indexes(word_indexes_filepath, word_indexes)
 
     offset_pos_mat = pos_mat-np.mean(np.where(
         pos_mat == np.inf,
@@ -33,7 +33,7 @@ def create_models(
     ))
     normalized_pos_mat = offset_pos_mat/normalization_factor
 
-    save_matrix(data_filename, normalized_pos_mat)
+    save_matrix(data_filepath, normalized_pos_mat)
 
     mapped_mat = np.where(
         normalized_pos_mat == np.inf,
@@ -44,12 +44,12 @@ def create_models(
     bar = ShadyBar("Covariance Matrix")
     reduced = pca(mapped_mat, mapped_mat.shape[0], bar)
 
-    save_matrix(pca_filename, reduced)
+    save_matrix(pca_filepath, reduced)
 
 
 def main():
 
-    _texts = [load_example_text(joinpath(EXAMPLE_WIKIPEDIA_TEXT_PATH, fn)) for fn in [
+    _texts = [load_example_text(EXAMPLE_WIKIPEDIA_TEXT_PATH/fn) for fn in [
         # "wikipedia-frances-cleveland.txt",
         "wikipedia-google.txt",
         "wikipedia-github.txt",
@@ -66,17 +66,17 @@ def main():
     create_models(
         pos_mat=unsigned_pos_mat,
         word_indexes=unsigned_word_indexes,
-        data_filename=ModelFilenames.WORD_REL_POS_UNSIGNED_FILENAME,
-        word_indexes_filename=ModelFilenames.WORD_REL_POS_UNSIGNED_WORD_INDEXES_FILENAME,
-        pca_filename=ModelFilenames.PCA_WORD_REL_POS_UNSIGNED_FILENAME
+        data_filepath=ModelFilepaths.WORD_REL_POS_UNSIGNED,
+        word_indexes_filepath=ModelFilepaths.WORD_REL_POS_UNSIGNED_WORD_INDEXES,
+        pca_filepath=ModelFilepaths.PCA_WORD_REL_POS_UNSIGNED
     )
 
     create_models(
         pos_mat=signed_pos_mat,
         word_indexes=signed_word_indexes,
-        data_filename=ModelFilenames.WORD_REL_POS_SIGNED_FILENAME,
-        word_indexes_filename=ModelFilenames.WORD_REL_POS_SIGNED_WORD_INDEXES_FILENAME,
-        pca_filename=ModelFilenames.PCA_WORD_REL_POS_SIGNED_FILENAME
+        data_filepath=ModelFilepaths.WORD_REL_POS_SIGNED,
+        word_indexes_filepath=ModelFilepaths.WORD_REL_POS_SIGNED_WORD_INDEXES,
+        pca_filepath=ModelFilepaths.PCA_WORD_REL_POS_SIGNED
     )
 
 

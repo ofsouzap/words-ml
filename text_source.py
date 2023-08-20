@@ -1,6 +1,6 @@
 from typing import List
 from abc import ABC, abstractmethod
-from os.path import isfile
+from pathlib import Path
 from tokenizing import TextToken, tokenize, WordTextToken, EndOfSectionTextToken, UnhandledTextTokenTypeException
 
 
@@ -101,17 +101,17 @@ class RawTextSource(ITextSource):
 class FileTextSource(RawTextSource):
 
     def __init__(self,
-                 filename: str):
+                 filepath: Path):
 
-        if not isfile(filename):
-            raise ValueError(filename)
+        if not filepath.is_file():
+            raise ValueError(filepath)
 
-        self._filename = filename
-        with open(self._filename, "r") as file:
+        self._filepath = filepath
+        with self._filepath.open("r") as file:
             text = file.read()
 
         super().__init__(text)
 
     @property
-    def filename(self) -> str:
-        return self._filename
+    def filepath(self) -> Path:
+        return self._filepath
