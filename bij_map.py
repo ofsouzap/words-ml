@@ -1,4 +1,4 @@
-from typing import Dict, TypeVar, Generic
+from typing import Dict, TypeVar, Generic, Iterator
 
 
 A = TypeVar("A")
@@ -29,7 +29,7 @@ class BijMap(Generic[A, B]):
             raise KeyError(a)
 
     def get_from(self, b: B) -> A:
-        if b in self.__to:
+        if b in self.__from:
             return self.__from[b]
         else:
             raise KeyError(b)
@@ -39,3 +39,13 @@ class BijMap(Generic[A, B]):
 
     def from_contins(self, b: B) -> bool:
         return b in self.__from
+
+    def iterate_to(self) -> Iterator[A]:
+        return iter(self.__to.keys())
+
+    def iterate_from(self) -> Iterator[B]:
+        return iter(self.__from.keys())
+
+    @property
+    def size(self) -> int:
+        return len(self.__to)

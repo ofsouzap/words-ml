@@ -1,14 +1,16 @@
+from typing import Optional
 import numpy as np
 from numpy import typing as npt
 from numpy import linalg
 from check import *
+from progress import Progress
 
 
 class DimensionTooHighError(Exception):
     pass
 
 
-def covariance_matrix(xs: npt.NDArray) -> npt.NDArray:
+def covariance_matrix(xs: npt.NDArray, progress: Optional[Progress] = None) -> npt.NDArray:
     """Returns a scaled covariance matrix created from the input data
 
 Parameters:
@@ -25,15 +27,26 @@ Returns:
     N = xs.shape[0]
     M = xs.shape[1]
 
-    cov_mat_scaled_parts = np.matmul(
-        xs[:,:,np.newaxis],
-        np.transpose(
-            xs[:,:,np.newaxis],
-            (0,2,1)
-        )
-    )
+    cov_mat = np.zeros(shape=(M,M), dtype=np.float32)
 
-    cov_mat = np.sum(cov_mat_scaled_parts, axis=0)
+    if progress:
+        progress.max = N
+
+    # Using Python iteration due to memory limitations for larger data sets
+
+    for i in range(N):
+
+        if progress:
+            progress.next()
+
+        cov_mat += np.matmul(
+            xs[i,:,np.newaxis],
+            xs[i,:,np.newaxis].T
+        )
+
+    if progress:
+        progress.finish()
+
     check_mat_dim(cov_mat, M)
 
     return cov_mat
@@ -64,19 +77,7 @@ Returns:
     return ordered_evecs
 
 
-def _custom_pca(xs: npt.NDArray, N: int) -> npt.NDArray:
-    """A custom implementation of Pricipal Component Analysis"""
-
-    cov_mat = covariance_matrix(xs)
-    comps = principal_components(cov_mat)[:N]
-
-    # comps is NxM
-
-    ys = xs @ comps.T
-
-    return ys
-
-def pca(xs: npt.NDArray, N: int) -> npt.NDArray:
+def pca(xs: npt.NDArray, N: int, covarince_matrix_progress: Optional[Progress] = None) -> npt.NDArray:
     """Uses Principal Component Analysis (PCA) to reduce the dimensionality of some data points
 
 Parameters:
@@ -84,6 +85,8 @@ Parameters:
     xs - a PxM array with the data the reduce the dimensionality of
 
     N - the number of dimensions to reduce the data to. If this is greater than the current dimensionality of the data then an exception is thrown
+
+    covariance_matrix_progress (optional) - a progress tracker to use for showing the progress of the covariance matrix creation
 
 Returns:
 
@@ -95,4 +98,11 @@ Returns:
     if N > xs.shape[1]:
         raise DimensionTooHighError()
 
-    return _custom_pca(xs, N)
+    cov_mat = covariance_matrix(xs, progress=covarince_matrix_progress)
+    comps = principal_components(cov_mat)[:N]
+
+    # comps is NxM
+
+    ys = xs @ comps.T
+
+    return ys
