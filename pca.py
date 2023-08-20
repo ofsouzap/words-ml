@@ -77,6 +77,10 @@ Returns:
     return ordered_evecs
 
 
+def project_to_components(xs: npt.NDArray, comps: npt.NDArray) -> npt.NDArray:
+    return xs @ comps.T
+
+
 def pca(xs: npt.NDArray, N: int, covarince_matrix_progress: Optional[Progress] = None) -> npt.NDArray:
     """Uses Principal Component Analysis (PCA) to reduce the dimensionality of some data points
 
@@ -103,6 +107,6 @@ Returns:
 
     # comps is NxM
 
-    ys = xs @ comps.T
+    ys = project_to_components(xs, comps)
 
     return ys

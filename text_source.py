@@ -1,6 +1,7 @@
-from typing import List
+from typing import List, Optional
 from abc import ABC, abstractmethod
 from pathlib import Path
+from progress import Progress
 from tokenizing import TextToken, tokenize, WordTextToken, EndOfSectionTextToken, UnhandledTextTokenTypeException
 
 
@@ -33,11 +34,12 @@ class ITextSource(ABC):
 class RawTextSource(ITextSource):
 
     def __init__(self,
-                 text: str):
+                 text: str,
+                 tokenize_progress: Optional[Progress] = None):
 
         self._text = text
 
-        self._token_list: List[TextToken] = tokenize(self._text)
+        self._token_list: List[TextToken] = tokenize(self._text, progress=tokenize_progress)
 
         self.__pos: int = 0
 
@@ -101,7 +103,8 @@ class RawTextSource(ITextSource):
 class FileTextSource(RawTextSource):
 
     def __init__(self,
-                 filepath: Path):
+                 filepath: Path,
+                 tokenize_progress: Optional[Progress] = None):
 
         if not filepath.is_file():
             raise ValueError(filepath)
@@ -110,7 +113,7 @@ class FileTextSource(RawTextSource):
         with self._filepath.open("r") as file:
             text = file.read()
 
-        super().__init__(text)
+        super().__init__(text, tokenize_progress=tokenize_progress)
 
     @property
     def filepath(self) -> Path:

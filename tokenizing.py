@@ -1,5 +1,6 @@
-from typing import List, Set
+from typing import List, Set, Optional
 from abc import ABC
+from progress import Progress
 import re
 
 
@@ -44,10 +45,13 @@ class EndOfSectionTextToken(TextToken):
     pass
 
 
-def tokenize(text: str) -> List[TextToken]:
+def tokenize(text: str, progress: Optional[Progress] = None) -> List[TextToken]:
 
     tokens: List[TextToken] = []
     curr: str = ""
+
+    if progress:
+        progress.max = len(text)
 
     for char in text:
 
@@ -70,8 +74,14 @@ def tokenize(text: str) -> List[TextToken]:
             if (len(tokens) > 0) and (not isinstance(tokens[-1], EndOfSectionTextToken)):
                 tokens.append(EndOfSectionTextToken())
 
+        if progress:
+            progress.next()
+
     if curr:
         tokens.append(WordTextToken(curr))
         curr = ""
+
+    if progress:
+        progress.finish()
 
     return tokens

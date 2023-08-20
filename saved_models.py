@@ -9,6 +9,8 @@ class ModelFilepaths:
     WORD_REL_POS_UNSIGNED_WORD_INDEXES = Path("saved_models", "word_rel_pos_unsigned_word_indexes.dat")
     WORD_REL_POS_SIGNED = Path("saved_models", "word_rel_pos_signed.npy")
     WORD_REL_POS_SIGNED_WORD_INDEXES = Path("saved_models", "word_rel_pos_signed_word_indexes.dat")
+    PRINCIPAL_COMPONENTS_WORD_REL_POS_UNSIGNED = Path("saved_models", "principal_components_word_rel_pos_unsigned.npy")
+    PRINCIPAL_COMPONENTS_WORD_REL_POS_SIGNED = Path("saved_models", "principal_components_word_rel_pos_signed.npy")
     PCA_WORD_REL_POS_UNSIGNED = Path("saved_models", "pca_word_rel_pos_unsigned.npy")
     PCA_WORD_REL_POS_SIGNED = Path("saved_models", "pca_word_rel_pos_signed.npy")
 

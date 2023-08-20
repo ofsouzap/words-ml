@@ -2,6 +2,7 @@ from typing import Tuple, Set, DefaultDict, Optional, List
 from collections import defaultdict
 import numpy as np
 import numpy.typing as npt
+from progress import Progress
 from bij_map import BijMap
 from text_source import ITextSource
 from check import check
@@ -10,7 +11,8 @@ from check import check
 def learn_word_rel_pos(text_source: ITextSource,
                        max_look_dist: int,
                        signed: bool = False,
-                       word_count_max: Optional[int] = None) -> Tuple[npt.NDArray[np.float32], BijMap[str, int]]:
+                       word_count_max: Optional[int] = None,
+                       progress: Optional[Progress] = None) -> Tuple[npt.NDArray[np.float32], BijMap[str, int]]:
     """Takes a text source and returns a large matrix of the average distances between any two words.
 
 Parameters:
@@ -23,6 +25,10 @@ Parameters:
 
     word_count_max (optional) - if provided, this positive integer will determine the maximum number of words to include in the output. \
 The words kept will be the most common words in the texts
+
+    progress (optional) - optional progress tracker. Will be configured so that it starts at 0 and, when the function completes, it will be finished. \
+To acheive this, it may be set to have, for example, half of it dedicated to the first half of the function and half to the other, even if one half is much \
+faster than the other.
 
 Returns:
 
@@ -52,6 +58,9 @@ The value `matrix[i,j]` gives you the average distance from an instance of word 
 
     _sections = text_source.read_all_sections()
 
+    if progress:
+        progress.max = len(_sections)*2
+
     for section in _sections:
 
         for main_index in range(0, len(section)):
@@ -76,6 +85,9 @@ The value `matrix[i,j]` gives you the average distance from an instance of word 
                 pair: Tuple[str, str] = (curr_word, search_word)
                 pair_occurence_counts[pair] += 1
                 tot_dists[pair] += (search_index-main_index) if signed else abs(search_index-main_index)
+
+        if progress:
+            progress.next()
 
     # Checks for development
 
@@ -106,6 +118,11 @@ The value `matrix[i,j]` gives you the average distance from an instance of word 
     matrix = np.ones(shape=(N,N), dtype=np.float32) * np.inf
     word_indexes = BijMap[str, int]()
     word_indexes_index: int = 0
+
+    if progress:
+        progress.max = len(tot_dists)*2
+        progress.start()  # Reset
+        progress.next(len(tot_dists))  # Move to halfway
 
     for pair in tot_dists:
 
@@ -139,6 +156,14 @@ The value `matrix[i,j]` gives you the average distance from an instance of word 
         avg_dist = tot / num
 
         matrix[word_index_1,word_index_2] = avg_dist
+
+        # Update progress
+
+        if progress:
+            progress.next()
+
+    if progress:
+        progress.finish()
 
     # Return outputs
 
